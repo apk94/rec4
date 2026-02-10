@@ -10,8 +10,8 @@ ssl._create_default_https_context = ssl._create_unverified_context
 class Task(object):
     def __init__(self, bike_df, bank_df):
         np.random.seed(31415)
-        self.bike_data = bike_df.sample(1000).copy()
-        self.bank_data = bank_df.copy()
+        self.bike_df = bike_df.sample(1000).copy()
+        self.bank_df = bank_df.copy()
 
     def t1(self):
         train = self.bike_df.iloc[0:900]
@@ -53,7 +53,7 @@ class Task(object):
  
     def t3(self):
         train = self.bank_df.iloc[0:500]
-        test = self.bank_df.iloc[500:0]
+        test = self.bank_df.iloc[500:]
         train_x = train[['region', 'sex', 'married']].values
         train_y = train[['mortgage']].values.ravel()
         test_x = test[['region', 'sex', 'married']].values
@@ -75,5 +75,6 @@ if __name__ == "__main__":
     print(t.t2_1())
     print("---------- Task 3 ----------")
     print(t.t3())
+
 
 
