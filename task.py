@@ -10,8 +10,8 @@ ssl._create_default_https_context = ssl._create_unverified_context
 class Task(object):
     def __init__(self, bike_df, bank_df):
         np.random.seed(31415)
-        self.bike_data = bike_df.sample(1000).copy()
-        self.bank_data = bank_df.copy()
+        self.bike_df = bike_df.sample(1000).copy()
+        self.bank_df = bank_df.copy()
 
     def t1(self):
         train = self.bike_df.iloc[0:900]
@@ -22,12 +22,13 @@ class Task(object):
         test_x = test[['weekday']].values
         test_y = test[['cnt']].values
        
-        regr = linear_model.LinearRegression()
+        regr = linear_model.LinearRegression()  
         regr.fit(train_x, train_y)
         predict_y = regr.predict(test_x)
-        meansq_error = np.mean((np.asarray(predict_y, dtype = float) - np.asarray))
-        return meansq_error 
-
+        
+        meansq_error = np.mean((predict_y - test_y) ** 2)
+        print ("Mean squared error: %.2f" % meansq_error)
+        return meansq_error
 
     def t2_1(self):
         train = self.bike_df.iloc[0:900]
@@ -36,13 +37,13 @@ class Task(object):
 
         test = self.bike_df.iloc[900:]
         test_x = test[['season', 'hr', 'holiday', 'weekday', 'workingday', 'weathersit', 'temp', 'temp_feels', 'hum', 'windspeed']].values
-        test_y = test[['cnt']].values.ravel()
+        test_y = test[['cnt']].values
         
-        clf = linear_model.LinearRegression()
-        clf = clf.fit(train_x, train_y)
-        dt_predict_y = clf.predict(test_x)
+        regr = linear_model.LinearRegression()  
+        regr.fit(train_x, train_y)
+        predict_y = regr.predict(test_x)
         
-        meansq_error = np.mean((dt_predict_y - test_y) ** 2)
+        meansq_error = np.mean((predict_y - test_y) ** 2)
         print ("Mean squared error: %.2f" % meansq_error)
         return meansq_error
 
@@ -51,30 +52,25 @@ class Task(object):
     ##better to use all attributes so it is a more accurate description.
  
     def t3(self):
-       self.bank_data['sex']= self.bank_data['sex'].replace(['FEMALE', 'MALE'], [1,2])
-       self.bank_data['region'] = self.bank_data['region'].replace(['INNER_CITY', 'TOWN', 'RURAL', 'SUBURBAN'], [1,2,3,4])
-       self.bank_data['married']= self.bank_data['married'].replace(['YES', 'NO'], [1,2])
-       self.bank_data['mortgage]= self.bank_data['mortgage'].replace(['YES', 'NO'], [1,2])
+        self.bank_df['sex'] = self.bank_df['sex'].replace(['FEMALE', 'MALE'], [1, 2])
+        self.bank_df['region'] = self.bank_df['region'].replace(['INNER_CITY', 'TOWN', 'RURAL', 'SUBURBAN'], [1, 2, 3, 4])
+        self.bank_df['married'] = self.bank_df['married'].replace(['YES', 'NO'], [1, 2])
+        self.bank_df['mortgage'] = self.bank_df['mortgage'].replace(['YES', 'NO'], [1, 2])  # Fixed quote
 
-       train = self.bank_data.iloc[:500]
-       train_x = train[['sex',
-                        'region',
-                        'married']].values
-       train_y = train[['mortgage']].values
+        train = self.bank_df.iloc[:500]
+        train_x = train[['sex', 'region', 'married']].values
+        train_y = train[['mortgage']].values
 
-       test = self.bank_data.iloc[500:]
-       test_x = test[['sex',
-                      'region',
-                      'married']].values
-       test_y = train[['mortgage']].values
-       clf = tree.DecisionTreeClassifier()
-       clf = clf.fit(train_x, train_y)
+        test = self.bank_df.iloc[500:]
+        test_x = test[['sex', 'region', 'married']].values
+        test_y = test[['mortgage']].values  # Fixed: was train, should be test
+        
+        clf = tree.DecisionTreeClassifier()
+        clf = clf.fit(train_x, train_y)
 
-       predict_y = clf.predict(test_x)
-       accuracy = metrics.accuracy_score(test_y, predict_y)
-       return accuracy
-
-       
+        predict_y = clf.predict(test_x)
+        accuracy = metrics.accuracy_score(test_y, predict_y)
+        return accuracy
         
 if __name__ == "__main__":
     t = Task(pd.read_csv('http://labrinidis.cs.pitt.edu/cs1656/data/bike_share.csv'), pd.read_csv('http://labrinidis.cs.pitt.edu/cs1656/data/bank-data.csv'))
@@ -84,6 +80,8 @@ if __name__ == "__main__":
     print(t.t2_1())
     print("---------- Task 3 ----------")
     print(t.t3())
+
+
 
 
 
