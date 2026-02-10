@@ -10,8 +10,6 @@ ssl._create_default_https_context = ssl._create_unverified_context
 class Task(object):
     def __init__(self, bike_df, bank_df):
         np.random.seed(31415)
-        bike_df = pd.read_csv('bike_share.csv', sep=',')
-        bank_df = pd.read_csv('bank-data.csv', sep=',')
         self.bike_data = bike_df.sample(1000).copy()
         self.bank_data = bank_df.copy()
 
@@ -77,4 +75,5 @@ if __name__ == "__main__":
     print(t.t2_1())
     print("---------- Task 3 ----------")
     print(t.t3())
+
 
